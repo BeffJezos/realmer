@@ -3,7 +3,7 @@ description: A Flutter app for tracking Sorcery Contested Realm gameplay
 
 publish_to: 'none'
 
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -25,3 +25,4 @@ flutter:
   
   assets:
     - assets/images/
+    - assets/ascii/
