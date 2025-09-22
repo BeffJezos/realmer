@@ -65,8 +65,10 @@ class _ThresholdTrackerWidgetState extends State<ThresholdTrackerWidget>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isDark
-              ? const Color(0xFF1E293B).withValues(alpha: 0.8)
-              : Colors.white.withValues(alpha: 0.9),
+              ? const Color(0xFF1A2332)
+                  .withValues(alpha: 0.9) // Richer mystical tone
+              : const Color(0xFFFEFEFE)
+                  .withValues(alpha: 0.95), // Pure mystical white
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isDark
@@ -83,9 +85,10 @@ class _ThresholdTrackerWidgetState extends State<ThresholdTrackerWidget>
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: GameElement.values.map((element) {
-            return _buildThresholdCounter(context, element);
+            return Expanded(
+              child: _buildThresholdCounter(context, element),
+            );
           }).toList(),
         ),
       ),
@@ -97,32 +100,35 @@ class _ThresholdTrackerWidgetState extends State<ThresholdTrackerWidget>
     final elementData = _getElementData(element);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Expanded(
-      child: GestureDetector(
-        onPanStart: (details) {
-          // Start hue animation when swipe begins
-          _hueControllers[element]?.forward();
-        },
-        onPanUpdate: (details) {
-          // Prevent default behavior during swipe
-        },
-        onPanEnd: (details) {
-          // Reset hue animation when swipe ends
-          _hueControllers[element]?.reverse();
+    return GestureDetector(
+      onPanStart: (details) {
+        // Start hue animation when swipe begins
+        _hueControllers[element]?.forward();
+      },
+      onPanUpdate: (details) {
+        // Prevent default behavior during swipe
+      },
+      onPanEnd: (details) {
+        // Reset hue animation when swipe ends
+        _hueControllers[element]?.reverse();
 
-          final velocity = details.velocity.pixelsPerSecond;
-          if (velocity.dy.abs() > velocity.dx.abs()) {
-            if (velocity.dy < -300) {
-              // Swipe up - increase threshold
-              Provider.of<GameStateProvider>(context, listen: false)
-                  .adjustThreshold(widget.isPlayer, element, 1);
-            } else if (velocity.dy > 300 && count > 0) {
-              // Swipe down - decrease threshold
-              Provider.of<GameStateProvider>(context, listen: false)
-                  .adjustThreshold(widget.isPlayer, element, -1);
-            }
+        final velocity = details.velocity.pixelsPerSecond;
+        if (velocity.dy.abs() > velocity.dx.abs()) {
+          if (velocity.dy < -300) {
+            // Swipe up - increase threshold
+            Provider.of<GameStateProvider>(context, listen: false)
+                .adjustThreshold(widget.isPlayer, element, 1);
+          } else if (velocity.dy > 300 && count > 0) {
+            // Swipe down - decrease threshold
+            Provider.of<GameStateProvider>(context, listen: false)
+                .adjustThreshold(widget.isPlayer, element, -1);
           }
-        },
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 60, // Fixed height for reliable swipe area
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: AnimatedBuilder(
           animation: _hueAnimations[element]!,
           builder: (context, child) {
@@ -132,41 +138,10 @@ class _ThresholdTrackerWidgetState extends State<ThresholdTrackerWidget>
                 hsv.withHue((hsv.hue + hueShift * 360) % 360).toColor();
 
             return Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center, // Center content
               children: [
-                // Element count display with modern design and hue animation
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        animatedColor,
-                        animatedColor.withValues(alpha: 0.7),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: animatedColor.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      count.toString(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
+                // Element count display - Air uses image as symbol, others use gradient
+                _buildElementSymbol(element, count, animatedColor),
 
                 const SizedBox(height: 4),
 
@@ -193,15 +168,100 @@ class _ThresholdTrackerWidgetState extends State<ThresholdTrackerWidget>
 
   ElementData _getElementData(GameElement element) {
     switch (element) {
-      case GameElement.fire:
-        return ElementData('FIRE', const Color(0xFFEF4444));
-      case GameElement.water:
-        return ElementData('WATER', const Color(0xFF3B82F6));
       case GameElement.air:
-        return ElementData('AIR', const Color(0xFF64748B));
+        return ElementData('AIR', const Color(0xFFAAB4D7)); // Luft: aab4d7
       case GameElement.earth:
-        return ElementData('EARTH', const Color(0xFF8B5CF6));
+        return ElementData('EARTH', const Color(0xFFA89D7C)); // Erde: a89d7c
+      case GameElement.fire:
+        return ElementData('FIRE', const Color(0xFFF35C25)); // Feuer: f35c25
+      case GameElement.water:
+        return ElementData('WATER', const Color(0xFF64BFDC)); // Wasser: 64bfdc
     }
+  }
+
+  Widget _buildElementSymbol(
+      GameElement element, int count, Color animatedColor) {
+    // Get the asset path for each element
+    String getAssetPath(GameElement element) {
+      switch (element) {
+        case GameElement.air:
+          return 'assets/ascii/air_ascii.png';
+        case GameElement.earth:
+          return 'assets/ascii/earth_ascii.png';
+        case GameElement.fire:
+          return 'assets/ascii/fire_ascii.png';
+        case GameElement.water:
+          return 'assets/ascii/water_ascii.png';
+      }
+    }
+
+    return Stack(
+      children: [
+        // Element ASCII as main symbol
+        Container(
+          width: 32,
+          height: 32,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              getAssetPath(element),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback to gradient design if image fails
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        animatedColor,
+                        animatedColor.withValues(alpha: 0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      count.toString(),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        // Count number overlay over image
+        Positioned.fill(
+          child: Center(
+            child: Text(
+              count.toString(),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                shadows: [
+                  Shadow(
+                    color: Colors.white,
+                    blurRadius: 2,
+                    offset: Offset(0, 0),
+                  ),
+                  Shadow(
+                    color: Colors.white,
+                    blurRadius: 4,
+                    offset: Offset(0, 0),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
