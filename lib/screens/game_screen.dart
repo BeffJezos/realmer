@@ -49,18 +49,19 @@ class _GameScreenState extends State<GameScreen> {
                       end: Alignment.bottomCenter,
                       colors: isDark
                           ? [
-                              const Color(0xFF0F172A),
-                              const Color(0xFF1E293B),
+                              const Color(0xFF0C1220), // Deeper mystical dark
+                              const Color(0xFF1A2332), // Richer dark tone
                             ]
                           : [
-                              const Color(0xFFF8FAFC),
-                              const Color(0xFFE2E8F0),
+                              const Color(0xFFF1F5F9), // Ethereal light
+                              const Color(
+                                  0xFFDDD6FE), // Subtle mystical purple tint
                             ],
                     ),
                   ),
                   child: Column(
                     children: [
-                      // Small opponent label (rotated for opponent's view)
+                      // Avatar selector for opponent (rotated for opponent's view)
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Transform.rotate(
@@ -110,12 +111,13 @@ class _GameScreenState extends State<GameScreen> {
                       end: Alignment.bottomCenter,
                       colors: isDark
                           ? [
-                              const Color(0xFF1E293B),
-                              const Color(0xFF0F172A),
+                              const Color(0xFF1A2332), // Richer dark tone
+                              const Color(0xFF0C1220), // Deeper mystical dark
                             ]
                           : [
-                              const Color(0xFFE2E8F0),
-                              const Color(0xFFF8FAFC),
+                              const Color(
+                                  0xFFDDD6FE), // Subtle mystical purple tint
+                              const Color(0xFFF1F5F9), // Ethereal light
                             ],
                     ),
                   ),
@@ -140,7 +142,7 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                       ),
 
-                      // Small player label
+                      // Avatar selector for player
                       Container(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(
