@@ -31,13 +31,14 @@ class ThemeProvider extends ChangeNotifier {
         useMaterial3: true,
         brightness: Brightness.light,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6B46C1),
+          seedColor: const Color(0xFF7C3AED), // More mystical purple
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-        cardColor: Colors.white,
+        scaffoldBackgroundColor:
+            const Color(0xFFF1F5F9), // Slightly more ethereal background
+        cardColor: const Color(0xFFFEFEFE), // Pure mystical white
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xFFFEFEFE),
           foregroundColor: Color(0xFF1E293B),
           elevation: 0,
           surfaceTintColor: Colors.transparent,
@@ -48,14 +49,15 @@ class ThemeProvider extends ChangeNotifier {
         useMaterial3: true,
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6B46C1),
+          seedColor: const Color(0xFF7C3AED), // More mystical purple
           brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        cardColor: const Color(0xFF1E293B),
+        scaffoldBackgroundColor:
+            const Color(0xFF0C1220), // Deeper mystical dark
+        cardColor: const Color(0xFF1A2332), // Richer dark tone
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1E293B),
-          foregroundColor: Colors.white,
+          backgroundColor: Color(0xFF1A2332),
+          foregroundColor: Color(0xFFE2E8F0), // Softer white
           elevation: 0,
           surfaceTintColor: Colors.transparent,
         ),
