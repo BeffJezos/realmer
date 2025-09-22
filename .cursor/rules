@@ -1,0 +1,268 @@
+---
+description: "Unified Dev Standard – Git Workflow, Auto-Commit & Versioning Rules"
+globs: []
+alwaysApply: true
+---
+
+# 🧠 Unified Dev Standard – Git & Universal Coding
+
+Du arbeitest professionell und kompromisslos. Diese Regeln gelten universell – egal welche Technologie, egal welches Projekt. Kein unnötiges BlaBla. Nur Substanz.
+
+⸻
+
+## 🚦 Git Workflow - ULTRA-STRICT RULES
+	•	Nur dev schreiben – Jede Änderung beginnt auf dev, nie direkt auf main.
+	•	VERBOTENE OPERATIONEN:
+		- NIEMALS `git reset --hard` auf branches
+		- NIEMALS beide branches auf denselben commit legen
+		- NIEMALS branch-Struktur kollabieren
+		- NIEMALS force-push ohne --force-with-lease
+		- NIEMALS interaktive rebases oder history rewriting
+		- NIEMALS direkte commits auf main (nur merges!)
+	•	ERLAUBTE OPERATIONEN:
+		- `git add .`, `git commit -m "message"`, `git push origin dev`
+		- `git checkout dev/main`, `git pull origin dev`
+		- `git merge --no-ff dev` (NUR auf main bei releases)
+		- `git tag v0.x.0`, `git push origin main --tags`
+	•	Commit-Format: type: description (v0.X.Y+Z) (Englisch, lowercase, prägnant)
+	•	Merge auf main: NUR bei 0.x.0 releases, IMMER no-fast-forward: `git merge --no-ff dev`
+	•	Clean History: Nur durch no-ff merges für klare release-tracking. NIEMALS destructive operations.
+	•	BRANCH INTEGRITY: dev und main müssen IMMER unterschiedliche commits haben (außer nach frischem merge)
+	•	Bei komplexen Git-Ops IMMER fragen: "⚠️ Das würde die Git-Historie ändern. Soll ich das wirklich machen?"
+
+⸻
+
+## 💫 LOGISCHE ÄNDERUNG + USER-BESTÄTIGTER COMMIT RULE:
+**GRUNDPRINZIP: Eine logische Änderung = Ein Commit (nach User-Bestätigung)**
+
+### **WORKFLOW FÜR LOGISCHE ÄNDERUNGEN:**
+1. **User gibt Aufgabe(n)** → Ich mache EINE logische Änderung nach der anderen (OHNE commits)
+2. **User testet im Simulator** → Sieht ob es funktioniert
+3. **User bestätigt mit "top"** → Dann erst alle logischen Änderungen als SEPARATE Commits (eine logische Änderung = ein Commit)
+
+### **BEISPIEL FÜR MEHRERE AUFGABEN:**
+User sagt: "Button kleiner, Text zentrieren, Farbe ändern"
+→ **3 logische Änderungen** = **3 separate Commits** (nach "top"-Bestätigung)
+→ Commit 1: "fix: reduce button size (v0.6.23+63)"
+→ Commit 2: "fix: center text alignment (v0.6.24+64)" 
+→ Commit 3: "fix: update button color (v0.6.25+65)"
+
+### **WAS IST EINE LOGISCHE ÄNDERUNG:**
+- **EIN Bug-Fix** (z.B. Text-Zentrierung korrigieren)
+- **EIN UI-Tweak** (z.B. Button-Größe anpassen)
+- **EIN Feature** (z.B. Dark Mode hinzufügen)
+- **EINE Refactoring-Einheit** (z.B. Code-Cleanup in einem Bereich)
+
+### **COMMIT-PROZESS (nur nach "top"-Bestätigung aller logischen Änderungen):**
+**FÜR JEDE LOGISCHE ÄNDERUNG SEPARAT:**
+1. **Version bump**: pubspec.yaml von 0.X.Y+Z zu richtige neue Version
+2. **Selective add**: `git add [alle Dateien DIESER EINEN logischen Änderung] pubspec.yaml`
+3. **Commit**: `git commit -m "type: logical change description (v0.X.Y+Z)"` (englisch, lowercase + version)
+4. **Wiederholen für nächste logische Änderung** (mit neuer Versionsnummer)
+
+### **🔍 SEMANTIC VERSIONING DETECTION:**
+- **MAJOR (1.0.0):** Breaking Changes, komplett neue App-Architektur
+- **MINOR (0.X.0):** Neue Features, Content-Überarbeitungen, Marketing-Updates, neue Screens, neue Provider
+- **PATCH (0.X.Y):** Bug fixes, UI tweaks, performance improvements, kleine Text-Änderungen
+
+### **Minor Features (require 0.X.0):**
+- Authentication/Login System ✓
+- Neue Screens/Pages ✓  
+- Neue Provider/Services ✓
+- Neue Datenmodelle ✓
+- Subscription/Payment Integration ✓
+- Major UI Redesigns ✓
+- **Content-Überarbeitungen** (README, Marketing, App-Beschreibungen) ✓
+- **Fundamentale Text-Änderungen** (nicht nur kleine Korrekturen) ✓
+
+### **Minor Release Workflow (0.X.0):**
+- `git checkout main` → `git merge --no-ff [SPECIFIC_COMMIT_HASH]` → `git tag v0.X.0` → `git push origin main --tags` → `git checkout dev`
+- **CRITICAL:** Nur bis zum spezifischen Release-Commit mergen, NICHT alle neuesten dev-Änderungen!
+- **BEISPIEL:** `git merge --no-ff b1f27c6a37d8750d201ce0df627a84971e5c69b7` für v0.8.0
+
+### **Logische Änderungen (jede = ein separater Commit):**
+- 3 kosmetische UI-fixes = 3 commits "fix: reduce button size (v0.8.28+67)", "fix: center text (v0.8.29+68)", "fix: update colors (v0.8.30+69)"
+- 1 Bug fix = 1 commit "fix: sidebar animation issue (v0.8.31+70)"  
+- 1 neues Feature = 1 commit "feat: add dark mode toggle (v0.9.0+71)" ← MINOR!
+- Auth System = 1 commit "feat: complete auth system (v0.9.0+80)" ← MINOR!
+
+### **⚠️ CRITICAL:** 
+- Bei MINOR features IMMER 0.X.0 statt 0.Y.Z verwenden!
+
+**NEVER:** ohne "top"-Bestätigung committen oder mehrere logische Änderungen in einem Commit mischen  
+**ALWAYS:** Mehrere logische Änderungen → "top"-Bestätigung → SEPARATE commits für jede logische Änderung = sofort
+
+⸻
+
+## 🚨 LOGISCHE ÄNDERUNG + USER-BESTÄTIGTE REGEL-ÜBERPRÜFUNG:
+**EINE LOGISCHE ÄNDERUNG, DANN "TOP"-BESTÄTIGUNG VOM USER:**
+
+1. **Git Status prüfen**: `git status` ausführen
+2. **Aktuelle Version validieren**: `git log --oneline -3` ODER `cat pubspec.yaml` prüfen
+3. **Nächste Version berechnen**: Basierend auf der tatsächlichen aktuellen Version (NICHT erfinden!)
+4. **Logische Änderung identifizieren**: Alle Dateien einer EINEN logischen Einheit zuordnen
+5. **Version bump**: `pubspec.yaml` aktualisieren
+6. **Erst dann committen**: Nach User-Bestätigung mit "top" für diese EINE logische Änderung!
+7. **Regel-Compliance bestätigen**: "✅ Alle .cursor/rules eingehalten"
+
+### **🚨 KRITISCHE VERSIONS-VALIDIERUNG:**
+**NIEMALS eine Version "erfinden" - IMMER zuerst validieren!**
+
+**VERSIONS-TYP BESTIMMUNG:**
+1. **Content-Überarbeitungen** = MINOR (0.X.0) - NICHT PATCH!
+2. **README/Marketing-Updates** = MINOR (0.X.0) - NICHT PATCH!
+3. **Fundamentale Text-Änderungen** = MINOR (0.X.0) - NICHT PATCH!
+4. **Nur kleine Korrekturen** = PATCH (0.X.Y)
+
+**VOR jedem Commit:**
+1. **Version prüfen**: `git log --oneline -3` → Letzte Version identifizieren
+2. **Nächste Version berechnen**: z.B. 0.6.33+73 → 0.6.33+74
+3. **Version in pubspec.yaml setzen**: Nur die validierte nächste Version
+
+**BEISPIEL für korrekte Versionierung:**
+- `git log` zeigt: `fix: improve chat scroll (v0.6.33+73)`
+- Nächste Version: `v0.6.33+74` (NICHT v0.6.5+66!)
+- Commit: `fix: ui improvements (v0.6.33+74)`
+
+**VERBOTEN:**
+- ❌ Versionen "erfinden" ohne Git-History zu prüfen
+- ❌ Niedrige Versionsnummern setzen ohne Validierung
+- ❌ Committen ohne Version-Validierung
+
+### **🚨 VERSIONS-SEQUENZ-VALIDIERUNG:**
+**CRITICAL:** Verhindere Versions-Sprünge und Duplikate!
+
+**ABSOLUTE REGELN:**
+1. **Keine doppelten Patch-Versionen**: 0.6.33+73 → 0.6.33+74 → 0.6.34+75 (NICHT 0.6.33+75!)
+2. **Keine übersprungenen Build-Numbers**: +80 → +81 → +82 (NICHT +80 → +82!)
+3. **Patch-Increment bei gleicher Minor**: 0.6.33+73 → 0.6.33+74 → 0.6.34+75
+4. **Minor-Increment bei neuen Features**: 0.6.33+73 → 0.7.0+74 → 0.7.1+75
+
+**VERSIONS-SEQUENZ-CHECKLIST:**
+- [ ] **Patch-Version prüfen**: Ist die vorherige Patch-Version identisch?
+- [ ] **Build-Number prüfen**: Ist die nächste Build-Number +1?
+- [ ] **Version-Typ validieren**: PATCH vs MINOR korrekt bestimmt?
+- [ ] **Keine Duplikate**: Gleiche Patch-Version nur einmal verwenden
+- [ ] **Keine Sprünge**: Build-Numbers müssen sequenziell sein
+
+**BEISPIEL für korrekte Sequenz:**
+- **PATCH-Serie**: v0.6.33+73 → v0.6.33+74 → v0.6.34+75 → v0.6.34+76
+- **MINOR-Serie**: v0.6.33+73 → v0.7.0+74 → v0.7.1+75 → v0.8.0+76
+- **GEMISCHT**: v0.6.33+73 → v0.6.33+74 → v0.7.0+75 → v0.7.1+76
+
+**VERBOTENE SEQUENZEN:**
+- ❌ v0.6.33+73 → v0.6.33+74 → v0.6.33+75 (doppelte Patch-Version)
+- ❌ v0.6.33+73 → v0.6.33+75 (übersprungene +74)
+- ❌ v0.6.33+73 → v0.6.34+75 (übersprungene +74)
+
+### **Regel-Überprüfungs-Checklist:**
+- [ ] Alle Änderungen gehören zu EINER logischen Einheit?
+- [ ] Version in pubspec.yaml gebumpt?
+- [ ] Alle Dateien der EINEN logischen Änderung geaddet?
+- [ ] Commit mit korrekter Version-Nummer?
+- [ ] Working tree clean nach Commit?
+
+### **🚨 VERSIONS-SEQUENZ-CHECKLIST (NEU):**
+- [ ] **Patch-Version prüfen**: Ist die vorherige Patch-Version identisch?
+- [ ] **Build-Number prüfen**: Ist die nächste Build-Number +1?
+- [ ] **Version-Typ validieren**: PATCH vs MINOR korrekt bestimmt?
+- [ ] **Keine Duplikate**: Gleiche Patch-Version nur einmal verwenden
+- [ ] **Keine Sprünge**: Build-Numbers müssen sequenziell sein
+
+### **Bei Regel-Verstoß:**
+- SOFORT stoppen und nachholen
+- Regel-Compliance vor weiteren Änderungen sicherstellen
+- Nie committen ohne "top"-Bestätigung vom User!
+- Nie mehrere logische Änderungen in einem Commit mischen!
+
+### **⚠️ CHRONOLOGISCHE COMMIT-REIHENFOLGE:**
+**CRITICAL:** Commits müssen in der Reihenfolge gemacht werden, wie die Änderungen entstanden sind!
+
+❌ **FALSCH:** Neueste Änderung zuerst committen
+✅ **RICHTIG:** Älteste Änderung zuerst committen
+
+**Beispiel für nachgeholte Commits:**
+1. Zuerst: Älteste logische Änderung (z.B. Icon Updates)
+2. Dann: Mittlere logische Änderung (z.B. Code Cleanup)  
+3. Zuletzt: Neueste logische Änderung (z.B. Edge Function Integration)
+
+**Bei nachgeholten Commits IMMER chronologisch vorgehen!**
+
+⸻
+
+## 🧩 Universal Coding Principles
+	•	Nutze const/immutable überall wo möglich.
+	•	Arrow-Syntax für kurze Funktionen.
+	•	Expression bodies für Getter/Setter.
+	•	Trailing commas – lesbarer, bessere Diffs.
+	•	Strukturiere Dateien logisch: exports → main logic → helpers → types.
+	•	Dynamische Konfiguration: Versionsnummern oder andere Konfigurationen MÜSSEN dynamisch aus ihrer Quelle (z.B. pubspec.yaml) geladen und dürfen nicht hartkodiert werden, um eine einzige Quelle der Wahrheit (Single Source of Truth) zu gewährleisten.
+
+⸻
+
+## ⚡ Performance Guidelines
+	•	Optimiere für Lesbarkeit und Wartbarkeit.
+	•	Verwende bewährte Patterns der jeweiligen Technologie.
+	•	Fehlerbehandling immer robust implementieren.
+	•	Asynchrone Operationen sauber abbrechen (dispose-Sicherheit).
+
+⸻
+
+## 🧱 Universal Model- & DB-Konventionen
+	•	Tabellen: created_at, updated_at, is_deleted.
+	•	Consistent naming conventions (snake_case DB, camelCase code).
+	•	Readonly-Felder klar markieren.
+	•	Enums mit numerischen Werten für DB-Kompatibilität.
+
+⸻
+
+## 📝 Dokumentation & Meta
+	•	Dokumentiere komplexe Logik, besonders da, wo die Architektur nicht sofort offensichtlich ist.
+	•	Folge stets der offiziellen Dokumentation der verwendeten Technologien.
+	•	Für Git: README, CHANGELOG, CONTRIBUTING aktuell halten.
+
+⸻
+
+## 🛑 Kritische Fehler – No Go
+	•	Direkte commits auf main (nur merges erlaubt).
+	•	Commits ohne Tests / ohne Lint.
+	•	Uppercase oder unklare Commits.
+	•	Unsaubere error handling.
+	•	Build läuft nicht und du pushst trotzdem.
+	•	**NEU:** Committen ohne "top"-Bestätigung vom User!
+	•	**CRITICAL:** Mehrere logische Änderungen in einem Commit mischen!
+	•	**CRITICAL:** Syntax-Errors oder Build-Errors offen lassen!
+	•	**MANDATORY:** Nach jeder Datei-Änderung SOFORT read_lints prüfen und beheben!
+	•	**🚨 KRITISCHE VERSIONS-REGEL:** NIEMALS Versionen "erfinden" - IMMER zuerst `git log` prüfen!
+	•	**🚨 VERSIONS-VALIDIERUNG:** Vor jedem Commit aktuelle Version validieren und nächste Version korrekt berechnen!
+	•	**🚨 VERSIONS-SEQUENZ-REGEL:** Keine doppelten Patch-Versionen und keine übersprungenen Build-Numbers!
+	•	**🚨 SEQUENZ-VALIDIERUNG:** Patch-Versionen müssen sequenziell incrementiert werden!
+
+⸻
+
+## ✅ Projekt ist gesund, wenn:
+	•	CI/CD grün.
+	•	0 Lint-Warnungen.
+	•	Code ist lesbar, modular, verständlich.
+	•	Git-History klar und nachvollziehbar.
+	•	Dokumentation aktuell.
+	•	Fehlerhandling robust.
+	•	App/System reagiert performant und skaliert sauber.
+	•	**NEU:** Working tree clean nur nach "top"-bestätigten Commits!
+
+⸻
+
+**Letzte Regel:**
+Wenn du denkst: „Reicht das schon so?" → Nein. Mach's richtig. Immer.
+Du bist nicht irgendwer. Du bist die rechte Hand von Deus Ex Machina. Und dein Code spiegelt das wieder.
+
+**NEUE KRITISCHE REGEL:**
+Nach JEDER logischen Änderung .cursor/rules überprüfen, aber NUR nach "top"-Bestätigung committen!
+Eine logische Änderung = Ein Commit! Keine Commits ohne User-Bestätigung!
+
+**CHAT-START REGEL:**
+BEI JEDEM NEUEN CHAT SOFORT (erste Nachricht):
+1. "🚨 REGEL-ÜBERPRÜFUNG: Ich befolge jetzt automatisch alle .cursor/rules!"
+2. `git status` ausführen und prüfen
+3. Bei uncommitted changes: SOFORT alle Regeln anwenden
+4. NIEMALS vergessen - IMMER automatisch machen! 
